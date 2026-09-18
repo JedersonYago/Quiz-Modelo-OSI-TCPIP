@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NET_MASTER // Quiz & Lab de Redes</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#0a0f1d',
+                            panel: '#111827',
+                            card: '#1f2937',
+                            neonGreen: '#10b981',
+                            neonCyan: '#06b6d4',
+                            neonPurple: '#a855f7',
+                            neonRed: '#ef4444',
+                            neonYellow: '#f59e0b',
+                            border: '#374151'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['Courier New', 'Consolas', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar and Cyberpunk subtle glowing effects */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0f1d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+            border: 1px solid #06b6d4;
+        }
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.35);
+        }
+        .glow-green {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+        }
+        .glow-red {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.35);
+        }
+        .scanline {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.3) 50%,
+                rgba(0, 0, 0, 0.3)
+            );
+            background-size: 100% 4px;
+        }
+    </style>
+</head>
+<body class="bg-cyber-bg text-gray-100 font-sans min-h-screen flex flex-col relative overflow-x-hidden selection:bg-cyber-neonCyan selection:text-black">
+
+    <!-- Grid Overlay Background Effect -->
+    <div class="fixed inset-0 pointer-events-none opacity-10 bg-[radial-gradient(#06b6d4_1px,transparent_1px)] [background-size:16px_16px] z-0"></div>
+
+    <!-- Header HUD -->
+    <header class="relative z-10 border-b border-cyber-border bg-cyber-panel/80 backdrop-blur-md px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="confirmExitToMenu()">
+                <div class="relative flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </div>
+                <h1 class="text-xl font-bold font-mono tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyber-neonCyan to-cyber-neonGreen">
+                    NET_MASTER // OSI_TCPIP_QUIZ
+                </h1>
+                <span class="text-xs font-mono bg-cyber-card border border-cyber-neonCyan/30 text-cyber-neonCyan px-2 py-0.5 rounded">v2.5.0</span>
+            </div>
+
+            <!-- Header Quick Stats & Sound Toggle -->
+            <div class="flex items-center gap-3 text-xs font-mono">
+                <div class="hidden sm:flex items-center gap-2 bg-cyber-card px-3 py-1.5 rounded border border-cyber-border">
+                    <span class="text-gray-400">STATUS:</span>
+                    <span id="header-status" class="text-cyber-neonGreen flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-cyber-neonGreen inline-block"></span> ONLINE
+                    </span>
+                </div>
+                <button id="sound-btn" onclick="toggleAudio()" class="flex items-center gap-1.5 bg-cyber-card hover:bg-gray-800 px-3 py-1.5 rounded border border-cyber-border text-gray-300 transition">
+                    <span id="sound-icon">🔊</span> AUDIO: <span id="sound-state" class="text-cyber-neonCyan">ON</span>
+                </button>
+                <button onclick="openCheatsheet()" class="bg-cyber-neonCyan/10 hover:bg-cyber-neonCyan/20 text-cyber-neonCyan border border-cyber-neonCyan/40 px-3 py-1.5 rounded transition font-bold flex items-center gap-1">
+                    📖 CHEATSHEET
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="relative z-10 flex-1 max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
+
+        <!-- LOBBY / MENU SCREEN -->
+        <div id="screen-menu" class="space-y-6">
+            <!-- Hero Terminal Banner -->
+            <div class="bg-cyber-panel border border-cyber-border rounded-xl p-6 relative overflow-hidden shadow-2xl">
+                <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none font-mono text-xs">
+                    01001111 01010011 01010011 00100000 01010100 01000011 01010000 00101111 01001001 01010000
+                </div>
+                <span class="text-xs font-mono text-cyber-neonCyan bg-cyber-neonCyan/10 border border-cyber-neonCyan/30 px-2.5 py-1 rounded">
+                    LOBBY DE ENTRADA
+                </span>
+                <h2 class="text-2xl md:text-3xl font-mono font-bold text-white mt-3 mb-2">SISTEMA DE TREINAMENTO DE REDES</h2>
+                <p class="text-gray-400 text-sm md:text-base max-w-2xl">
+                    Prepare-se para o teste de conhecimento em Camadas OSI, Arquitetura TCP/IP, Portas bem conhecidas e Análise de Pacotes. Configure sua partida abaixo e clique para iniciar.
+                </p>
+                
+                <!-- Configure Match Options -->
+                <div class="mt-6 pt-5 border-t border-cyber-border grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-mono text-gray-300 mb-2">QUANTIDADE DE QUESTÕES:</label>
+                        <div class="grid grid-cols-4 gap-2 font-mono text-xs">
+                            <button onclick="setQuestionCount(5)" id="btn-count-5" class="count-btn bg-cyber-card border border-cyber-border hover:border-cyber-neonCyan text-white p-2 rounded transition text-center font-bold">5</button>
+                            <button onclick="setQuestionCount(10)" id="btn-count-10" class="count-btn bg-cyber-neonCyan/20 border border-cyber-neonCyan text-cyber-neonCyan p-2 rounded transition text-center font-bold">10</button>
+                            <button onclick="setQuestionCount(15)" id="btn-count-15" class="count-btn bg-cyber-card border border-cyber-border hover:border-cyber-neonCyan text-white p-2 rounded transition text-center font-bold">15</button>
+                            <button onclick="setQuestionCount('all')" id="btn-count-all" class="count-btn bg-cyber-card border border-cyber-border hover:border-cyber-neonCyan text-white p-2 rounded transition text-center font-bold">TODAS</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-gray-300 mb-2">CATEGORIA SELECIONADA:</label>
+                        <div id="selected-category-display" class="bg-cyber-card border border-cyber-neonCyan text-cyber-neonCyan font-mono text-xs p-2.5 rounded font-bold flex items-center justify-between">
+                            <span>🌐 DESAFIO COMPLETO (MISTO)</span>
+                            <span class="text-[10px] text-gray-400">SELEÇÃO ATIVA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HUGE ENTER QUIZ BUTTON -->
+                <div class="mt-6">
+                    <button onclick="startQuizWithSelectedCategory()" class="w-full bg-gradient-to-r from-cyber-neonCyan to-cyber-neonGreen hover:from-cyan-400 hover:to-emerald-400 text-black font-mono font-bold text-lg py-4 px-6 rounded-xl shadow-lg glow-cyan transition transform active:scale-[0.99] flex items-center justify-center gap-3 uppercase tracking-wider">
+                        <span>🚀 ENTRAR NO QUIZ / INICIAR PARTIDA</span>
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mode Selection Cards -->
+            <div class="space-y-2">
+                <h3 class="text-xs font-mono text-gray-400 uppercase tracking-wider">Escolha a Categoria do Quiz:</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Mode 1 -->
+                    <button onclick="selectCategory('all')" id="card-cat-all" class="category-card group text-left bg-cyber-panel border-2 border-cyber-neonCyan p-5 rounded-xl flex flex-col justify-between relative overflow-hidden shadow-lg transition">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-cyber-neonCyan"></div>
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-mono text-cyber-neonCyan bg-cyber-neonCyan/10 px-2 py-0.5 rounded">MODO MISTO</span>
+                                <span class="text-xl">🌐</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white font-mono group-hover:text-cyber-neonCyan transition">DESAFIO COMPLETO</h3>
+                            <p class="text-gray-400 text-xs mt-1">Mistura todas as categorias: OSI, TCP/IP, Portas e Análise de Pacotes.</p>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center text-xs font-mono text-cyber-neonCyan">
+                            <span>Status: Selecionado</span>
+                            <span class="font-bold">✓ ATIVO</span>
+                        </div>
+                    </button>
+
+                    <!-- Mode 2 -->
+                    <button onclick="selectCategory('osi')" id="card-cat-osi" class="category-card group text-left bg-cyber-panel border border-cyber-border hover:border-cyber-neonGreen p-5 rounded-xl flex flex-col justify-between relative overflow-hidden shadow-lg transition">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-cyber-neonGreen"></div>
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-mono text-cyber-neonGreen bg-cyber-neonGreen/10 px-2 py-0.5 rounded">7 CAMADAS</span>
+                                <span class="text-xl">🏗️</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white font-mono group-hover:text-cyber-neonGreen transition">MODELO OSI</h3>
+                            <p class="text-gray-400 text-xs mt-1">Foco em PDUs, Camadas de Aplicação até Física e funções ISO/OSI.</p>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center text-xs font-mono text-gray-400">
+                            <span>Dificuldade: Médio</span>
+                            <span>Clique p/ Selecionar</span>
+                        </div>
+                    </button>
+
+                    <!-- Mode 3 -->
+                    <button onclick="selectCategory('tcp')" id="card-cat-tcp" class="category-card group text-left bg-cyber-panel border border-cyber-border hover:border-cyber-neonPurple p-5 rounded-xl flex flex-col justify-between relative overflow-hidden shadow-lg transition">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-cyber-neonPurple"></div>
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-mono text-cyber-neonPurple bg-cyber-neonPurple/10 px-2 py-0.5 rounded">4 CAMADAS</span>
+                                <span class="text-xl">⚡</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white font-mono group-hover:text-cyber-neonPurple transition">MODELO TCP/IP</h3>
+                            <p class="text-gray-400 text-xs mt-1">Arquitetura real da Internet: Aplicação, Transporte, Internet e Acesso à Rede.</p>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center text-xs font-mono text-gray-400">
+                            <span>Dificuldade: Médio</span>
+                            <span>Clique p/ Selecionar</span>
+                        </div>
+                    </button>
+
+                    <!-- Mode 4 -->
+                    <button onclick="selectCategory('ports')" id="card-cat-ports" class="category-card group text-left bg-cyber-panel border border-cyber-border hover:border-cyber-neonYellow p-5 rounded-xl flex flex-col justify-between relative overflow-hidden shadow-lg transition">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-cyber-neonYellow"></div>
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-mono text-cyber-neonYellow bg-cyber-neonYellow/10 px-2 py-0.5 rounded">PORTAS DE REDE</span>
+                                <span class="text-xl">🔌</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white font-mono group-hover:text-cyber-neonYellow transition">PORTAS & PROTOCOLOS</h3>
+                            <p class="text-gray-400 text-xs mt-1">Associe portas conhecidas (21, 22, 53, 80, 443, 3389...) aos seus serviços.</p>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center text-xs font-mono text-gray-400">
+                            <span>Dificuldade: Desafiador</span>
+                            <span>Clique p/ Selecionar</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUIZ SCREEN -->
+        <div id="screen-quiz" class="hidden space-y-4">
+            <!-- Top Controls Bar with Back Button -->
+            <div class="flex items-center justify-between gap-2 bg-cyber-panel border border-cyber-border rounded-xl p-3">
+                <button onclick="confirmExitToMenu()" class="bg-cyber-card hover:bg-gray-800 text-gray-300 hover:text-white border border-cyber-border hover:border-cyber-neonRed px-3 py-1.5 rounded text-xs font-mono font-bold transition flex items-center gap-1.5">
+                    <span>←</span> <span>MENU PRINCIPAL</span>
+                </button>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="openRestartConfirmModal()" class="bg-cyber-card hover:bg-gray-800 text-cyber-neonYellow border border-cyber-border hover:border-cyber-neonYellow px-3 py-1.5 rounded text-xs font-mono font-bold transition flex items-center gap-1">
+                        <span>🔄</span> <span>REINICIAR</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- HUD Top Info bar -->
+            <div class="bg-cyber-panel border border-cyber-border rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
+                <!-- Progress -->
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-400">QUESTÃO:</span>
+                    <span id="quiz-progress-text" class="text-cyber-neonCyan font-bold text-sm">1/10</span>
+                </div>
+
+                <!-- Combo & Score -->
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-1">
+                        <span class="text-gray-400">COMBO:</span>
+                        <span id="quiz-streak" class="text-cyber-neonYellow font-bold text-sm">🔥 0x</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-gray-400">PONTOS:</span>
+                        <span id="quiz-score" class="text-cyber-neonGreen font-bold text-sm">0</span>
+                    </div>
+                </div>
+
+                <!-- Timer Indicator -->
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="text-gray-400">TEMPO:</span>
+                    <div class="w-28 bg-gray-800 rounded-full h-2.5 overflow-hidden border border-gray-700">
+                        <div id="quiz-timer-bar" class="bg-cyber-neonCyan h-full w-full transition-all duration-1000"></div>
+                    </div>
+                    <span id="quiz-timer-text" class="text-gray-200 font-bold">20s</span>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-cyber-panel border border-cyber-border rounded-xl p-6 shadow-xl relative">
+                <!-- Category Tag -->
+                <div class="flex justify-between items-center mb-4">
+                    <span id="quiz-category-badge" class="text-xs font-mono bg-cyber-neonCyan/10 text-cyber-neonCyan border border-cyber-neonCyan/30 px-2.5 py-1 rounded">
+                        CATEGORIA
+                    </span>
+                    <span id="quiz-pdu-badge" class="text-xs font-mono text-gray-400 bg-cyber-card px-2 py-1 rounded border border-cyber-border">
+                        PDU: Data
+                    </span>
+                </div>
+
+                <!-- Question Text -->
+                <h3 id="quiz-question-text" class="text-lg md:text-xl font-medium text-white mb-6 leading-relaxed">
+                    Texto da Questão...
+                </h3>
+
+                <!-- Options List -->
+                <div id="quiz-options-container" class="space-y-3">
+                    <!-- Dynamic Options Populated Here -->
+                </div>
+
+                <!-- Feedback Banner -->
+                <div id="quiz-feedback-box" class="hidden mt-6 p-4 rounded-lg border font-mono text-xs md:text-sm space-y-2">
+                    <div class="flex items-center gap-2 font-bold text-base" id="feedback-title">
+                        <!-- Title inserted here -->
+                    </div>
+                    <p id="feedback-explanation" class="text-gray-300 leading-relaxed">
+                        <!-- Explanation inserted here -->
+                    </p>
+                    <button id="btn-next-question" onclick="nextQuestion()" class="mt-3 w-full bg-cyber-neonCyan hover:bg-cyan-400 text-black font-bold py-2.5 rounded transition font-mono uppercase tracking-wider">
+                        Próximo Pacote (Avançar) →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="screen-results" class="hidden space-y-6">
+            <div class="bg-cyber-panel border border-cyber-border rounded-xl p-6 md:p-8 text-center relative overflow-hidden shadow-2xl">
+                <!-- Header Badge -->
+                <div class="inline-block bg-cyber-card border border-cyber-neonCyan/40 text-cyber-neonCyan px-4 py-1 rounded-full text-xs font-mono mb-4">
+                    RELATÓRIO DE DESEMPENHO DE REDE
+                </div>
+
+                <h2 class="text-2xl md:text-4xl font-bold font-mono text-white mb-2">ANÁLISE DE TRÁFEGO CONCLUÍDA</h2>
+                <p id="results-subtitle" class="text-gray-400 text-sm mb-6">Você completou o teste de conhecimento.</p>
+
+                <!-- Rank Card -->
+                <div class="max-w-md mx-auto bg-cyber-card border border-cyber-border p-6 rounded-xl mb-6 relative">
+                    <span class="text-xs font-mono text-gray-400 block mb-1">PATENTE OBTIDA:</span>
+                    <div id="results-rank-title" class="text-2xl font-mono font-bold text-cyber-neonGreen mb-2">
+                        ADMINISTRADOR DE REDES
+                    </div>
+                    <div id="results-rank-icon" class="text-5xl my-3">🛡️</div>
+                    <p id="results-rank-desc" class="text-xs text-gray-300">
+                        Ótimo domínio dos protocolos e camadas básicas!
+                    </p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto font-mono mb-6">
+                    <div class="bg-cyber-card p-3 rounded border border-cyber-border">
+                        <span class="text-gray-400 text-xs block">Pontuação Total</span>
+                        <span id="results-score" class="text-cyber-neonCyan text-lg font-bold">0</span>
+                    </div>
+                    <div class="bg-cyber-card p-3 rounded border border-cyber-border">
+                        <span class="text-gray-400 text-xs block">Taxa de Acerto</span>
+                        <span id="results-accuracy" class="text-cyber-neonGreen text-lg font-bold">0%</span>
+                    </div>
+                    <div class="bg-cyber-card p-3 rounded border border-cyber-border">
+                        <span class="text-gray-400 text-xs block">Maior Combo</span>
+                        <span id="results-max-streak" class="text-cyber-neonYellow text-lg font-bold">0x</span>
+                    </div>
+                    <div class="bg-cyber-card p-3 rounded border border-cyber-border">
+                        <span class="text-gray-400 text-xs block">Acertos / Erros</span>
+                        <span id="results-count" class="text-white text-lg font-bold">0 / 0</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons Area -->
+                <div class="flex flex-col sm:flex-row justify-center gap-3 max-w-lg mx-auto font-mono text-xs md:text-sm">
+                    <button onclick="restartQuizCurrentSettings()" class="w-full bg-cyber-neonCyan text-black hover:bg-cyan-400 py-3 rounded-lg font-bold transition flex items-center justify-center gap-2">
+                        <span>🔄</span> <span>JOGAR NOVAMENTE</span>
+                    </button>
+                    <button onclick="returnToMenu()" class="w-full bg-cyber-card hover:bg-gray-800 text-white border border-cyber-border py-3 rounded-lg font-bold transition flex items-center justify-center gap-2">
+                        <span>🚪</span> <span>SAIR / MENU PRINCIPAL</span>
+                    </button>
+                    <button onclick="reviewMistakes()" id="btn-review" class="w-full bg-cyber-neonCyan/10 hover:bg-cyber-neonCyan/20 border border-cyber-neonCyan text-cyber-neonCyan py-3 rounded-lg font-bold transition flex items-center justify-center gap-2">
+                        <span>🔍</span> <span>REVISAR ERROS</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review Errors Section -->
+            <div id="results-review-container" class="hidden bg-cyber-panel border border-cyber-border rounded-xl p-6 space-y-4">
+                <h3 class="text-lg font-mono font-bold text-white border-b border-cyber-border pb-2">
+                    REVISÃO DE CONCEITOS E ERROS
+                </h3>
+                <div id="review-list" class="space-y-3 font-mono text-xs md:text-sm">
+                    <!-- Dynamic mistakes injected here -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- EXIT CONFIRMATION MODAL -->
+    <div id="modal-exit-confirm" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-cyber-panel border border-cyber-neonRed w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4 font-mono">
+            <div class="flex items-center gap-3 text-cyber-neonRed font-bold text-lg border-b border-cyber-border pb-3">
+                <span>⚠️</span>
+                <span>CONFIRMAR SAÍDA?</span>
+            </div>
+            <p class="text-gray-300 text-sm">
+                Se você retornar ao Menu Principal agora, todo o seu progresso nesta partida atual será perdido.
+            </p>
+            <div class="flex gap-3 pt-2">
+                <button onclick="closeExitConfirmModal()" class="w-full bg-cyber-card hover:bg-gray-800 border border-cyber-border text-white py-2 rounded font-bold">
+                    Continuar Quiz
+                </button>
+                <button onclick="forceReturnToMenu()" class="w-full bg-cyber-neonRed hover:bg-red-600 text-white py-2 rounded font-bold">
+                    Sair do Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESTART CONFIRMATION MODAL -->
+    <div id="modal-restart-confirm" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-cyber-panel border border-cyber-neonYellow w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4 font-mono">
+            <div class="flex items-center gap-3 text-cyber-neonYellow font-bold text-lg border-b border-cyber-border pb-3">
+                <span>🔄</span>
+                <span>REINICIAR PARTIDA?</span>
+            </div>
+            <p class="text-gray-300 text-sm">
+                Deseja reiniciar este quiz desde a primeira pergunta? A pontuação atual será zerada.
+            </p>
+            <div class="flex gap-3 pt-2">
+                <button onclick="closeRestartConfirmModal()" class="w-full bg-cyber-card hover:bg-gray-800 border border-cyber-border text-white py-2 rounded font-bold">
+                    Cancelar
+                </button>
+                <button onclick="confirmRestartQuiz()" class="w-full bg-cyber-neonYellow hover:bg-yellow-600 text-black py-2 rounded font-bold">
+                    Sim, Reiniciar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHEATSHEET MODAL -->
+    <div id="modal-cheatsheet" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-cyber-panel border border-cyber-neonCyan w-full max-w-4xl max-h-[90vh] rounded-xl flex flex-col shadow-2xl overflow-hidden">
+            <!-- Modal Header -->
+            <div class="p-4 border-b border-cyber-border flex justify-between items-center bg-cyber-card">
+                <div class="flex items-center gap-2">
+                    <span class="text-cyber-neonCyan font-mono text-lg font-bold">📖 GUIA RÁPIDO DE REFERÊNCIA DE REDES</span>
+                </div>
+                <button onclick="closeCheatsheet()" class="text-gray-400 hover:text-white font-mono text-xl px-2">✕</button>
+            </div>
+
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-6 overflow-y-auto space-y-6 text-xs md:text-sm">
+                <!-- Section 1: OSI vs TCP/IP -->
+                <div>
+                    <h4 class="text-cyber-neonCyan font-mono font-bold mb-3 border-b border-cyber-border pb-1">
+                        1. COMPARATIVO: MODELO OSI vs MODELO TCP/IP
+                    </h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left font-mono border-collapse border border-cyber-border">
+                            <thead>
+                                <tr class="bg-cyber-card text-cyber-neonGreen">
+                                    <th class="p-2 border border-cyber-border">Camada OSI (7)</th>
+                                    <th class="p-2 border border-cyber-border">PDU</th>
+                                    <th class="p-2 border border-cyber-border">Camada TCP/IP (4)</th>
+                                    <th class="p-2 border border-cyber-border">Exemplo de Protocolos / Equipamentos</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-cyber-border text-gray-300">
+                                <tr>
+                                    <td class="p-2 border border-cyber-border font-bold">7. Aplicação</td>
+                                    <td class="p-2 border border-cyber-border text-cyber-neonYellow" rowspan="3">Dados</td>
+                                    <td class="p-2 border border-cyber-border font-bold text-cyber-neonCyan" rowspan="3">4. Aplicação</td>
+                                    <td class="p-2 border border-cyber-border">HTTP, HTTPS, DNS, SSH, FTP, SMTP, DHCP</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 border border-cyber-border font-bold">6. Apresentação</td>
+                                    <td class="p-2 border border-cyber-border">TLS/SSL, JPEG, ASCII, Criptografia</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 border border-cyber-border font-bold">5. Sessão</td>
+                                    <td class="p-2 border border-cyber-border">NetBIOS, RPC, Sockets (controle de diálogo)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 border border-cyber-border font-bold">4. Transporte</td>
+                                    <td class="p-2 border border-cyber-border text-cyber-neonYellow">Segmento (TCP) / Datagrama (UDP)</td>
+                                    <td class="p-2 border border-cyber-border font-bold text-cyber-neonCyan">3. Transporte</td>
+                                    <td class="p-2 border border-cyber-border">TCP (Confiável), UDP (Rápido)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 border border-cyber-border font-bold">3. Rede</td>
+                                    <td class="p-2 border border-cyber-border text-cyber-neonYellow">Pacote</td>
+                                    <td class="p-2 border border-cyber-border font-bold text-cyber-neonCyan">2. Internet</td>
+                                    <td class="p-2 border border-cyber-border">IP (IPv4/IPv6), ICMP, ARP, Roteadores</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 border border-cyber-border font-bold">2. Enlace (Link)</td>
+                                    <td class="p-2 border border-cyber-border text-cyber-neonYellow">Quadro (Frame)</td>
+                                    <td class="p-2 border border-cyber-border font-bold text-cyber-neonCyan" rowspan="2">1. Acesso à Rede</td>
+                                    <td class="p-2 border border-cyber-border">Ethernet, Wi-Fi (802.11), Switches (L2), Endereço MAC</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 border border-cyber-border font-bold">1. Física</td>
+                                    <td class="p-2 border border-cyber-border text-cyber-neonYellow">Bits</td>
+                                    <td class="p-2 border border-cyber-border">Cabos UTP, Fibra Óptica, Hubs, Sinais elétricos/ópticos</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Section 2: Portas Frequentes -->
+                <div>
+                    <h4 class="text-cyber-neonCyan font-mono font-bold mb-3 border-b border-cyber-border pb-1">
+                        2. PRINCIPAIS PORTAS DE REDE (WELL-KNOWN PORTS 0-1023)
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 font-mono">
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">FTP (20 / 21)</span> - Transferência de Arquivos
+                        </div>
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">SSH (22)</span> - Acesso Remoto Seguro
+                        </div>
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">Telnet (23)</span> - Acesso Remoto não seguro
+                        </div>
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">SMTP (25 / 587)</span> - Envio de E-mails
+                        </div>
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">DNS (53)</span> - Resolução de Nomes
+                        </div>
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">DHCP (67 / 68)</span> - Configuração IP Dinâmica
+                        </div>
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">HTTP (80)</span> - Navegação Web Padrão
+                        </div>
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">POP3 (110)</span> - Download de E-mails
+                        </div>
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">IMAP (143)</span> - E-mails Sincronizados
+                        </div>
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">SNMP (161)</span> - Gerenciamento de Rede
+                        </div>
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">HTTPS (443)</span> - Web Segura Criptografada
+                        </div>
+                        <div class="bg-cyber-card p-2.5 rounded border border-cyber-border">
+                            <span class="text-cyber-neonGreen font-bold">RDP (3389)</span> - Área de Trabalho Remota
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-3 border-t border-cyber-border bg-cyber-card text-right">
+                <button onclick="closeCheatsheet()" class="bg-cyber-neonCyan text-black font-bold font-mono px-4 py-1.5 rounded hover:bg-cyan-400 transition">
+                    Fechar Terminal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- AUDIO SYNTHESIS ENGINE (Web Audio API) --- */
+        let audioCtx = null;
+        let audioEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, now);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.setValueAtTime(130, now + 0.1);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'timeout') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(120, now);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                }
+            } catch (e) {
+                console.log('Audio error:', e);
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('sound-state').innerText = audioEnabled ? 'ON' : 'OFF';
+            document.getElementById('sound-icon').innerText = audioEnabled ? '🔊' : '🔇';
+        }
+
+        /* --- QUESTION BANK --- */
+        const questionBank = [
+            {
+                id: 1,
+                category: 'osi',
+                categoryLabel: 'MODELO OSI',
+                pdu: 'Pacote (Packet)',
+                question: 'Em qual camada do Modelo OSI operam os Roteadores para realizar o encaminhamento de pacotes com base em endereços lógicos (IP)?',
+                options: [
+                    'Camada 2 - Enlace de Dados',
+                    'Camada 3 - Rede',
+                    'Camada 4 - Transporte',
+                    'Camada 7 - Aplicação'
+                ],
+                correct: 1,
+                explanation: 'A Camada 3 (Rede) é responsável pelo endereçamento lógico (IPv4/IPv6) e roteamento de pacotes entre diferentes redes.'
+            },
+            {
+                id: 2,
+                category: 'ports',
+                categoryLabel: 'PORTAS & PROTOCOLOS',
+                pdu: 'Segmento (TCP)',
+                question: 'Qual é a porta padrão utilizada para estabelecer conexões remotas seguras e criptografadas via terminal em servidores Linux (SSH)?',
+                options: [
+                    'Porta 21',
+                    'Porta 22',
+                    'Porta 23',
+                    'Porta 3389'
+                ],
+                correct: 1,
+                explanation: 'A porta 22 é a porta padrão do protocolo SSH (Secure Shell). A porta 21 é FTP, 23 é Telnet e 3389 é RDP.'
+            },
+            {
+                id: 3,
+                category: 'tcp',
+                categoryLabel: 'MODELO TCP/IP',
+                pdu: 'Datagrama (UDP)',
+                question: 'No Modelo TCP/IP (4 camadas), qual camada corresponde à fusão das camadas de Aplicação, Apresentação e Sessão do Modelo OSI?',
+                options: [
+                    'Camada de Transporte',
+                    'Camada Internet',
+                    'Camada de Aplicação',
+                    'Camada de Acesso à Rede'
+                ],
+                correct: 2,
+                explanation: 'A camada de Aplicação do Modelo TCP/IP engloba todas as funções relativas ao usuário e dados (Aplicação, Apresentação e Sessão do Modelo OSI).'
+            },
+            {
+                id: 4,
+                category: 'ports',
+                categoryLabel: 'PORTAS & PROTOCOLOS',
+                pdu: 'Datagrama / Segmento',
+                question: 'O protocolo DNS (Domain Name System) traduz nomes de domínio para endereços IP. Qual porta padrão ele utiliza?',
+                options: [
+                    'Porta 53',
+                    'Porta 67',
+                    'Porta 80',
+                    'Porta 443'
+                ],
+                correct: 0,
+                explanation: 'O DNS utiliza a porta 53 (usando UDP para consultas rápidas e TCP para transferências de zona).'
+            },
+            {
+                id: 5,
+                category: 'osi',
+                categoryLabel: 'MODELO OSI',
+                pdu: 'Quadro (Frame)',
+                question: 'Qual é a PDU (Unidade de Dados do Protocolo) correspondente à Camada 2 (Enlace de Dados) do Modelo OSI?',
+                options: [
+                    'Bits',
+                    'Pacote',
+                    'Quadro (Frame)',
+                    'Segmento'
+                ],
+                correct: 2,
+                explanation: 'A ordem das PDUs do modelo OSI é: Física = Bits, Enlace = Quadro (Frame), Rede = Pacote, Transporte = Segmento/Datagrama, Aplicação = Dados.'
+            },
+            {
+                id: 6,
+                category: 'tcp',
+                categoryLabel: 'MODELO TCP/IP',
+                pdu: 'Segmento (TCP)',
+                question: 'Qual das seguintes características descreve corretamente o protocolo TCP em relação ao UDP?',
+                options: [
+                    'TCP não garante a entrega de pacotes, sendo mais rápido.',
+                    'TCP é orientado à conexão, garantindo entrega e ordenação dos dados.',
+                    'TCP opera exclusivamente na camada de Acesso à Rede.',
+                    'TCP utiliza apenas o protocolo ICMP para controle de erros.'
+                ],
+                correct: 1,
+                explanation: 'O TCP é um protocolo orientado à conexão que realiza o "Three-Way Handshake" (SYN, SYN-ACK, ACK) garantindo entrega confiável de dados.'
+            },
+            {
+                id: 7,
+                category: 'ports',
+                categoryLabel: 'PORTAS & PROTOCOLOS',
+                pdu: 'Segmento (TCP)',
+                question: 'Ao acessar um site seguro via protocolo HTTPS, qual porta de rede padrão é utilizada pelo navegador?',
+                options: [
+                    'Porta 80',
+                    'Porta 8080',
+                    'Porta 443',
+                    'Porta 110'
+                ],
+                correct: 2,
+                explanation: 'HTTPS (HTTP Secure) utiliza criptografia TLS/SSL na porta 443. O HTTP convencional não criptografado utiliza a porta 80.'
+            },
+            {
+                id: 8,
+                category: 'osi',
+                categoryLabel: 'MODELO OSI',
+                pdu: 'Dados',
+                question: 'Criptografia de dados, compressão e conversão de formatos (como ASCII para Unicode, ou JPEG) ocorrem em qual camada OSI?',
+                options: [
+                    'Camada 7 - Aplicação',
+                    'Camada 6 - Apresentação',
+                    'Camada 5 - Sessão',
+                    'Camada 4 - Transporte'
+                ],
+                correct: 1,
+                explanation: 'A Camada 6 (Apresentação) é responsável pela sintaxe e formatação dos dados, incluindo criptografia e compressão.'
+            },
+            {
+                id: 9,
+                category: 'ports',
+                categoryLabel: 'PORTAS & PROTOCOLOS',
+                pdu: 'Datagrama (UDP)',
+                question: 'Qual protocolo é responsável por atribuir automaticamente endereços IP, máscaras de sub-rede e gateways aos dispositivos da rede?',
+                options: [
+                    'ARP (Porta 0)',
+                    'DNS (Porta 53)',
+                    'DHCP (Portas 67/68)',
+                    'SNMP (Portas 161/162)'
+                ],
+                correct: 2,
+                explanation: 'O DHCP (Dynamic Host Configuration Protocol) utiliza as portas UDP 67 (servidor) e 68 (cliente) para atribuição automática de configurações IP.'
+            },
+            {
+                id: 10,
+                category: 'osi',
+                categoryLabel: 'MODELO OSI',
+                pdu: 'Quadro (Frame)',
+                question: 'O endereço MAC (Media Access Control) é um endereço físico gravado na placa de rede. Em qual camada ele reside?',
+                options: [
+                    'Camada 1 - Física',
+                    'Camada 2 - Enlace de Dados',
+                    'Camada 3 - Rede',
+                    'Camada 4 - Transporte'
+                ],
+                correct: 1,
+                explanation: 'Os endereços MAC (ex: 00:1A:2B:3C:4D:5E) operam na Camada 2 (Enlace de Dados) e são utilizados pelos Switches L2.'
+            },
+            {
+                id: 11,
+                category: 'tcp',
+                categoryLabel: 'MODELO TCP/IP',
+                pdu: 'Pacote (IP)',
+                question: 'O comando "ping" é amplamente utilizado para testar a conectividade entre hosts. Qual protocolo da camada Internet do TCP/IP ele utiliza?',
+                options: [
+                    'ARP',
+                    'ICMP',
+                    'IGMP',
+                    'UDP'
+                ],
+                correct: 1,
+                explanation: 'O comando ping utiliza mensagens Echo Request e Echo Reply do protocolo ICMP (Internet Control Message Protocol).'
+            },
+            {
+                id: 12,
+                category: 'ports',
+                categoryLabel: 'PORTAS & PROTOCOLOS',
+                pdu: 'Segmento (TCP)',
+                question: 'Quais portas são utilizadas pelo protocolo FTP (File Transfer Protocol) para comando e dados, respectivamente?',
+                options: [
+                    'Portas 20 (Dados) e 21 (Controle)',
+                    'Portas 22 e 23',
+                    'Porta 25 e 110',
+                    'Porta 80 e 8080'
+                ],
+                correct: 0,
+                explanation: 'O FTP utiliza duas portas TCP: a porta 21 para envio de comandos de controle e a porta 20 para a transferência de dados em modo ativo.'
+            },
+            {
+                id: 13,
+                category: 'osi',
+                categoryLabel: 'MODELO OSI',
+                pdu: 'Dados',
+                question: 'Qual camada do Modelo OSI é responsável por estabelecer, gerenciar e encerrar sessões/conexões entre aplicações locais e remotas?',
+                options: [
+                    'Camada 3 - Rede',
+                    'Camada 4 - Transporte',
+                    'Camada 5 - Sessão',
+                    'Camada 6 - Apresentação'
+                ],
+                correct: 2,
+                explanation: 'A Camada 5 (Sessão) estabelece, mantém e sincroniza o diálogo entre as aplicações das duas extremidades.'
+            },
+            {
+                id: 14,
+                category: 'ports',
+                categoryLabel: 'PORTAS & PROTOCOLOS',
+                pdu: 'Segmento (TCP)',
+                question: 'Se um administrador de rede precisa conectar-se via Área de Trabalho Remota (Remote Desktop) em um servidor Windows, qual porta deve estar aberta no firewall?',
+                options: [
+                    'Porta 22',
+                    'Porta 1433',
+                    'Porta 3389',
+                    'Porta 8080'
+                ],
+                correct: 2,
+                explanation: 'A porta 3389 é utilizada pelo protocolo RDP (Remote Desktop Protocol) da Microsoft.'
+            },
+            {
+                id: 15,
+                category: 'tcp',
+                categoryLabel: 'MODELO TCP/IP',
+                pdu: 'Quadro / Pacote',
+                question: 'Qual é a função do protocolo ARP (Address Resolution Protocol)?',
+                options: [
+                    'Mapear um endereço de e-mail para um endereço IP.',
+                    'Mapear um endereço IP conhecido para um endereço MAC físico correspondente.',
+                    'Traduzir nomes de domínio para endereços IP.',
+                    'Criptografar transmissões de pacotes na camada de rede.'
+                ],
+                correct: 1,
+                explanation: 'O ARP resolve endereços da Camada de Rede (IP) em endereços físicos de Camada de Enlace (MAC) na rede local.'
+            }
+        ];
+
+        /* --- STATE VARIABLES --- */
+        let selectedCategory = 'all';
+        let selectedQuestionCount = 10;
+
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let streak = 0;
+        let maxStreak = 0;
+        let timerInterval = null;
+        let timeLeft = 20;
+        const QUESTION_TIME = 20;
+        let userAnswers = [];
+        let isGameActive = false;
+
+        /* --- NAVIGATION & MODALS --- */
+        function showScreen(screenId) {
+            document.getElementById('screen-menu').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        function openCheatsheet() {
+            playSound('click');
+            document.getElementById('modal-cheatsheet').classList.remove('hidden');
+        }
+
+        function closeCheatsheet() {
+            playSound('click');
+            document.getElementById('modal-cheatsheet').classList.add('hidden');
+        }
+
+        /* --- LOBBY CONFIGURATION --- */
+        function selectCategory(cat) {
+            playSound('click');
+            selectedCategory = cat;
+
+            // Reset all card styles
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.className = 'category-card group text-left bg-cyber-panel border border-cyber-border p-5 rounded-xl flex flex-col justify-between relative overflow-hidden shadow-lg transition';
+                const statusSpan = card.querySelector('div:last-child span:last-child');
+                if (statusSpan) statusSpan.innerText = 'Clique p/ Selecionar';
+            });
+
+            // Highlight selected card
+            const activeCard = document.getElementById(`card-cat-${cat}`);
+            if (activeCard) {
+                let borderColor = 'border-cyber-neonCyan';
+                if (cat === 'osi') borderColor = 'border-cyber-neonGreen';
+                if (cat === 'tcp') borderColor = 'border-cyber-neonPurple';
+                if (cat === 'ports') borderColor = 'border-cyber-neonYellow';
+
+                activeCard.className = `category-card group text-left bg-cyber-panel border-2 ${borderColor} p-5 rounded-xl flex flex-col justify-between relative overflow-hidden shadow-lg transition`;
+                const statusSpan = activeCard.querySelector('div:last-child span:last-child');
+                if (statusSpan) statusSpan.innerText = '✓ ATIVO';
+            }
+
+            // Update Label Display
+            const display = document.getElementById('selected-category-display');
+            let labelText = '🌐 DESAFIO COMPLETO (MISTO)';
+            if (cat === 'osi') labelText = '🏗️ MODELO OSI (7 CAMADAS)';
+            if (cat === 'tcp') labelText = '⚡ MODELO TCP/IP (4 CAMADAS)';
+            if (cat === 'ports') labelText = '🔌 PORTAS & PROTOCOLOS';
+
+            display.innerHTML = `<span>${labelText}</span><span class="text-[10px] text-gray-400">SELEÇÃO ATIVA</span>`;
+        }
+
+        function setQuestionCount(count) {
+            playSound('click');
+            selectedQuestionCount = count;
+
+            document.querySelectorAll('.count-btn').forEach(btn => {
+                btn.className = 'count-btn bg-cyber-card border border-cyber-border hover:border-cyber-neonCyan text-white p-2 rounded transition text-center font-bold';
+            });
+
+            const activeBtn = document.getElementById(`btn-count-${count}`);
+            if (activeBtn) {
+                activeBtn.className = 'count-btn bg-cyber-neonCyan/20 border border-cyber-neonCyan text-cyber-neonCyan p-2 rounded transition text-center font-bold';
+            }
+        }
+
+        function startQuizWithSelectedCategory() {
+            startQuiz(selectedCategory);
+        }
+
+        /* --- QUIZ LOGIC --- */
+        function startQuiz(category) {
+            playSound('click');
+            selectedCategory = category;
+
+            // Filter questions based on category
+            if (category === 'all') {
+                currentQuestions = [...questionBank].sort(() => Math.random() - 0.5);
+            } else {
+                currentQuestions = questionBank.filter(q => q.category === category).sort(() => Math.random() - 0.5);
+            }
+
+            // Apply selected question count limit
+            if (selectedQuestionCount !== 'all' && currentQuestions.length > selectedQuestionCount) {
+                currentQuestions = currentQuestions.slice(0, selectedQuestionCount);
+            }
+
+            currentIndex = 0;
+            score = 0;
+            streak = 0;
+            maxStreak = 0;
+            userAnswers = [];
+            isGameActive = true;
+
+            showScreen('screen-quiz');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            clearInterval(timerInterval);
+            timeLeft = QUESTION_TIME;
+
+            const q = currentQuestions[currentIndex];
+
+            // Update UI elements
+            document.getElementById('quiz-progress-text').innerText = `${currentIndex + 1}/${currentQuestions.length}`;
+            document.getElementById('quiz-score').innerText = score;
+            document.getElementById('quiz-streak').innerText = `🔥 ${streak}x`;
+            document.getElementById('quiz-category-badge').innerText = q.categoryLabel;
+            document.getElementById('quiz-pdu-badge').innerText = `PDU: ${q.pdu}`;
+            document.getElementById('quiz-question-text').innerText = q.question;
+
+            // Hide feedback box
+            document.getElementById('quiz-feedback-box').classList.add('hidden');
+
+            // Build Options
+            const container = document.getElementById('quiz-options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-lg bg-cyber-card border border-cyber-border hover:border-cyber-neonCyan hover:bg-gray-800 text-sm md:text-base font-mono transition flex items-center justify-between group`;
+                btn.onclick = () => selectOption(idx);
+                btn.innerHTML = `
+                    <span class="flex items-center gap-3">
+                        <span class="w-6 h-6 rounded flex items-center justify-center bg-gray-800 text-cyber-neonCyan font-bold text-xs border border-cyber-border group-hover:border-cyber-neonCyan">
+                            ${String.fromCharCode(65 + idx)}
+                        </span>
+                        <span>${opt}</span>
+                    </span>
+                    <span class="opacity-0 group-hover:opacity-100 text-cyber-neonCyan font-bold transition">→</span>
+                `;
+                container.appendChild(btn);
+            });
+
+            startTimer();
+        }
+
+        function startTimer() {
+            updateTimerUI();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerUI();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            document.getElementById('quiz-timer-text').innerText = `${timeLeft}s`;
+            const pct = (timeLeft / QUESTION_TIME) * 100;
+            const bar = document.getElementById('quiz-timer-bar');
+            bar.style.width = `${pct}%`;
+
+            if (timeLeft <= 5) {
+                bar.className = 'bg-cyber-neonRed h-full transition-all duration-1000';
+            } else if (timeLeft <= 10) {
+                bar.className = 'bg-cyber-neonYellow h-full transition-all duration-1000';
+            } else {
+                bar.className = 'bg-cyber-neonCyan h-full transition-all duration-1000';
+            }
+        }
+
+        function selectOption(selectedIdx) {
+            clearInterval(timerInterval);
+
+            const q = currentQuestions[currentIndex];
+            const isCorrect = selectedIdx === q.correct;
+
+            userAnswers.push({
+                question: q.question,
+                selected: q.options[selectedIdx],
+                correctAnswer: q.options[q.correct],
+                isCorrect: isCorrect,
+                explanation: q.explanation
+            });
+
+            if (isCorrect) {
+                playSound('correct');
+                streak++;
+                if (streak > maxStreak) maxStreak = streak;
+                const pointsGained = 100 + (timeLeft * 5) + (streak * 20);
+                score += pointsGained;
+            } else {
+                playSound('wrong');
+                streak = 0;
+            }
+
+            showFeedback(isCorrect, q.options[q.correct], selectedIdx);
+        }
+
+        function handleTimeout() {
+            playSound('timeout');
+            const q = currentQuestions[currentIndex];
+            streak = 0;
+
+            userAnswers.push({
+                question: q.question,
+                selected: 'Tempo Esgotado',
+                correctAnswer: q.options[q.correct],
+                isCorrect: false,
+                explanation: q.explanation
+            });
+
+            showFeedback(false, q.options[q.correct], -1, true);
+        }
+
+        function showFeedback(isCorrect, correctText, selectedIdx, isTimeout = false) {
+            const container = document.getElementById('quiz-options-container');
+            const buttons = container.querySelectorAll('button');
+            const q = currentQuestions[currentIndex];
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-cyber-neonCyan', 'hover:bg-gray-800');
+
+                if (idx === q.correct) {
+                    btn.classList.add('border-cyber-neonGreen', 'bg-emerald-950/40', 'text-emerald-200');
+                } else if (idx === selectedIdx && !isCorrect) {
+                    btn.classList.add('border-cyber-neonRed', 'bg-red-950/40', 'text-red-200');
+                } else {
+                    btn.classList.add('opacity-40');
+                }
+            });
+
+            const feedbackBox = document.getElementById('quiz-feedback-box');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackExplanation = document.getElementById('feedback-explanation');
+
+            feedbackBox.classList.remove('hidden', 'bg-emerald-950/50', 'border-cyber-neonGreen', 'bg-red-950/50', 'border-cyber-neonRed', 'bg-yellow-950/50', 'border-cyber-neonYellow');
+
+            if (isCorrect) {
+                feedbackBox.classList.add('bg-emerald-950/40', 'border-cyber-neonGreen');
+                feedbackTitle.className = 'flex items-center gap-2 font-bold text-base text-cyber-neonGreen';
+                feedbackTitle.innerHTML = '<span>✅ TRANSMISSÃO BEM-SUCEDIDA! (Resposta Correta)</span>';
+            } else if (isTimeout) {
+                feedbackBox.classList.add('bg-yellow-950/40', 'border-cyber-neonYellow');
+                feedbackTitle.className = 'flex items-center gap-2 font-bold text-base text-cyber-neonYellow';
+                feedbackTitle.innerHTML = '<span>⚠️ TIMEOUT DE PACOTE! (Tempo Esgotado)</span>';
+            } else {
+                feedbackBox.classList.add('bg-red-950/40', 'border-cyber-neonRed');
+                feedbackTitle.className = 'flex items-center gap-2 font-bold text-base text-cyber-neonRed';
+                feedbackTitle.innerHTML = '<span>❌ FALHA NO PACOTE! (Resposta Incorreta)</span>';
+            }
+
+            feedbackExplanation.innerText = q.explanation;
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            currentIndex++;
+
+            if (currentIndex < currentQuestions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        /* --- EXIT & RESTART CONFIRMATIONS --- */
+        function confirmExitToMenu() {
+            if (isGameActive) {
+                playSound('click');
+                clearInterval(timerInterval); // Pause timer
+                document.getElementById('modal-exit-confirm').classList.remove('hidden');
+            } else {
+                returnToMenu();
+            }
+        }
+
+        function closeExitConfirmModal() {
+            playSound('click');
+            document.getElementById('modal-exit-confirm').classList.add('hidden');
+            if (isGameActive && timeLeft > 0) {
+                startTimer(); // Resume timer
+            }
+        }
+
+        function forceReturnToMenu() {
+            playSound('click');
+            isGameActive = false;
+            clearInterval(timerInterval);
+            document.getElementById('modal-exit-confirm').classList.add('hidden');
+            showScreen('screen-menu');
+        }
+
+        function openRestartConfirmModal() {
+            playSound('click');
+            clearInterval(timerInterval);
+            document.getElementById('modal-restart-confirm').classList.remove('hidden');
+        }
+
+        function closeRestartConfirmModal() {
+            playSound('click');
+            document.getElementById('modal-restart-confirm').classList.add('hidden');
+            if (isGameActive && timeLeft > 0) {
+                startTimer();
+            }
+        }
+
+        function confirmRestartQuiz() {
+            playSound('click');
+            document.getElementById('modal-restart-confirm').classList.add('hidden');
+            startQuiz(selectedCategory);
+        }
+
+        function restartQuizCurrentSettings() {
+            playSound('click');
+            startQuiz(selectedCategory);
+        }
+
+        function finishQuiz() {
+            isGameActive = false;
+            clearInterval(timerInterval);
+            showScreen('screen-results');
+
+            const total = currentQuestions.length;
+            const correctCount = userAnswers.filter(a => a.isCorrect).length;
+            const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('results-score').innerText = score;
+            document.getElementById('results-accuracy').innerText = `${accuracy}%`;
+            document.getElementById('results-max-streak').innerText = `${maxStreak}x`;
+            document.getElementById('results-count').innerText = `${correctCount} / ${total - correctCount}`;
+
+            let rankTitle = '';
+            let rankIcon = '';
+            let rankDesc = '';
+
+            if (accuracy >= 90) {
+                rankTitle = 'MESTRE DOS PROTOCOLOS';
+                rankIcon = '⚡';
+                rankDesc = 'Conhecimento absoluto sobre redes, topologias, portas e modelo OSI. Você é um Arquiteto de Redes Sênior!';
+            } else if (accuracy >= 70) {
+                rankTitle = 'ADMINISTRADOR DE REDES';
+                rankIcon = '🛡️';
+                rankDesc = 'Excelente domínio sobre protocolos e roteamento. Pronto para manter a infraestrutura funcionando com estabilidade!';
+            } else if (accuracy >= 50) {
+                rankTitle = 'TÉCNICO DE NOC';
+                rankIcon = '🔧';
+                rankDesc = 'Bom conhecimento prático, mas ainda precisa reforçar algumas portas de rede e particularidades do modelo OSI.';
+            } else {
+                rankTitle = 'ESTAGIÁRIO DE REDES';
+                rankIcon = '🔌';
+                rankDesc = 'Pacotes perdidos no caminho! Recomenda-se abrir o Cheatsheet e estudar as 7 Camadas OSI e as Portas Principais.';
+            }
+
+            document.getElementById('results-rank-title').innerText = rankTitle;
+            document.getElementById('results-rank-icon').innerText = rankIcon;
+            document.getElementById('results-rank-desc').innerText = rankDesc;
+
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = '';
+
+            const wrongAnswers = userAnswers.filter(a => !a.isCorrect);
+
+            if (wrongAnswers.length === 0) {
+                reviewList.innerHTML = `
+                    <div class="p-4 bg-emerald-950/30 border border-cyber-neonGreen rounded-lg text-cyber-neonGreen text-center">
+                        🎉 Transmissão perfeita! Nenhuma falha detectada em todos os pacotes.
+                    </div>
+                `;
+                document.getElementById('btn-review').classList.add('hidden');
+            } else {
+                document.getElementById('btn-review').classList.remove('hidden');
+                wrongAnswers.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'p-3 bg-cyber-card border border-cyber-border rounded-lg space-y-1';
+                    div.innerHTML = `
+                        <div class="text-white font-bold">❓ ${item.question}</div>
+                        <div class="text-red-400">Sua resposta: ${item.selected}</div>
+                        <div class="text-cyber-neonGreen font-bold">Resposta correta: ${item.correctAnswer}</div>
+                        <div class="text-gray-400 text-xs mt-1 border-t border-cyber-border pt-1">💡 ${item.explanation}</div>
+                    `;
+                    reviewList.appendChild(div);
+                });
+            }
+        }
+
+        function reviewMistakes() {
+            playSound('click');
+            const container = document.getElementById('results-review-container');
+            container.classList.toggle('hidden');
+            if (!container.classList.contains('hidden')) {
+                container.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function returnToMenu() {
+            playSound('click');
+            isGameActive = false;
+            clearInterval(timerInterval);
+            showScreen('screen-menu');
+        }
+    </script>
+</body>
+</html>
